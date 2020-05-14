@@ -1,0 +1,35 @@
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: log-reader
+  namespace: "log-reader"
+  labels:
+    app: log-reader
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: log-reader
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: log-reader
+      annotations:
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - log-reader
+            topologyKey: "kubernetes.io/hostname"
+      serviceAccountName: log-reader
+      containers:
+        - name: drain
+          image: cube8021/k8s-log-reader
